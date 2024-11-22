@@ -7,6 +7,8 @@ use App\Traits\ApiResponse;
 use App\Constants\ApiErrorCode;
 use Illuminate\Http\Request;
 use App\Constants\DeviceType;
+use App\Exceptions\DeviceNotFoundException;
+use Illuminate\Support\Facades\Log;
 
 class DeviceController extends Controller
 {
@@ -76,13 +78,18 @@ class DeviceController extends Controller
 
     public function remove(Request $request, $device_id)
     {
-        $device = $request->user()->devices()->where('device_id', $device_id)->first();
-        
-        if (!$device) {
+        try {
+            $this->deviceService->removeDevice(
+                $request->user()->id, 
+                $device_id
+            );
+    
+            return $this->successResponse(null, 'Device removed successfully');
+        } catch (DeviceNotFoundException $e) {
             return $this->errorResponse(ApiErrorCode::DEVICE_NOT_FOUND);
+        } catch (\Exception $e) {
+            Log::error('Error removing device: ' . $e->getMessage());
+            return $this->errorResponse(ApiErrorCode::SERVER_ERROR);
         }
-
-        $device->update(['is_active' => false]);
-        return $this->successResponse(null, 'Device removed successfully');
     }
 }

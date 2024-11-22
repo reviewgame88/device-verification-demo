@@ -67,6 +67,8 @@ class DeviceVerificationService
                 return $this->registerNewDevice($user_id, $device_id, $device_type);
 
             } catch (\Exception $e) {
+
+                // Redis không hỗ trợ transaction nên phải cleanup thủ công ở đây
                 $this->cleanupRedis($user_id, $device_id);
                 Log::error('Device verification failed', [
                     'user_id' => $user_id,
