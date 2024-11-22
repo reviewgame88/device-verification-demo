@@ -53,12 +53,12 @@ class DeviceController extends Controller
             $device_id,
             $device_type,
         );
-        
+
         if (!$result['success']) {
             $error_code = ApiErrorCode::DEVICE_VERIFICATION_FAILED;
             
-            if (isset($verification_result['error_code'])) {
-                $error_code = $verification_result['error_code'];
+            if (isset($result['error_code'])) {
+                $error_code = $result['error_code'];
             }
             
             return $this->errorResponse($error_code);
